@@ -281,8 +281,7 @@ def get_location(ip):
         return data.get("city", "unknown"), data.get("country", "unknown")
     except:
         return "unknown", "unknown"
- from django.http import HttpResponse
-from django.contrib.auth.models import User
+
 
 def create_admin(request):
     user, created = User.objects.get_or_create(username='admin')
