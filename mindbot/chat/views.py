@@ -280,13 +280,15 @@ def get_location(ip):
         return data.get("city", "unknown"), data.get("country", "unknown")
     except:
         return "unknown", "unknown"
-from django.http import HttpResponse
+ from django.http import HttpResponse
 from django.contrib.auth.models import User
 
 def create_admin(request):
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@gmail.com', 'Ankushh11')
-        return HttpResponse("Admin created")
-    return HttpResponse("Admin already exists")
+    user, created = User.objects.get_or_create(username='admin')
 
+    user.set_password('admin123')   # reset password
+    user.is_staff = True
+    user.is_superuser = True
+    user.save()
 
+    return HttpResponse("Admin password reset done")
