@@ -1,10 +1,11 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 import requests
 from .models import SearchLog
 from user_agents import parse
-import requests
 from django.core.cache import cache
+from django.contrib.auth.models import User
+from django.db.models import Count
 
 
 API_KEY = "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"
@@ -286,7 +287,7 @@ from django.contrib.auth.models import User
 def create_admin(request):
     user, created = User.objects.get_or_create(username='admin')
 
-    user.set_password('admin123')   # reset password
+    user.set_password('admin123')
     user.is_staff = True
     user.is_superuser = True
     user.save()
