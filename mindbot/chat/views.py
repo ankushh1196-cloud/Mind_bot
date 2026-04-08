@@ -5,8 +5,6 @@ from .models import SearchLog
 from user_agents import parse
 from django.core.cache import cache
 from django.contrib.auth.models import User
-from django.db.models import Count
-
 
 API_KEY = "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"
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -16,8 +14,6 @@ headers = { #for sending API's Key
     "Content-Type": "application/json"
 }
 
-conversation = [] #stores chat history of past 8 messages
-stage = "start"
 MAX_MEMORY = 8
 
 def home(request):
@@ -26,11 +22,12 @@ def home(request):
 def is_mood_related(text):
     text = text.lower()
     keywords = [
-        "sad","happy","angry","stress","anxious",
-        "tired","lonely","empty","numb",
-        "overthinking","fear","worry",
-        "confused","lost","pressure",
-        "no energy","burnt out","hopeless"
+        "sad", "happy", "angry", "stress", "anxious",
+        "tired", "lonely", "empty", "numb",
+        "overthinking", "fear", "worry",
+        "confused", "lost", "pressure",
+        "fine", "okay", "good", "not good",
+        "bad", "normal", "meh"
     ]
     return any(word in text for word in keywords)
 
@@ -84,7 +81,6 @@ def query(messages):
         "model": "openai/gpt-4o-mini",
         "messages": messages
     }
-
     try:
         res = requests.post(
             API_URL,
@@ -92,7 +88,6 @@ def query(messages):
             json=payload,
             timeout=10
         )
-
         print("STATUS:", res.status_code)
         print("RESPONSE:", res.text)
 
@@ -101,7 +96,6 @@ def query(messages):
 
         data = res.json()
 
-        # SAFE CHECK
         if "choices" not in data:
             return {"error": data}
 
@@ -151,7 +145,7 @@ def chatbot(request):
     device = "Mobile" if ua.is_mobile else "PC"
     browser = ua.browser.family
     os = ua.os.family
-    SearchLog.objects.create( 
+    SearchLog.objects.create(
         session_id=session_id,
         message=user_msg,
         user_ip=ip,
@@ -265,7 +259,6 @@ Rules:
     request.session["stage"] = stage
     return JsonResponse({"reply": reply})
 from django.db.models import Count
-
 def dashboard(request):
     total_users = SearchLog.objects.values("session_id").distinct().count()
     total_messages = SearchLog.objects.count()
@@ -298,5 +291,4 @@ def create_admin(request):
     user.is_staff = True
     user.is_superuser = True
     user.save()
-
     return HttpResponse("Admin password reset done")
