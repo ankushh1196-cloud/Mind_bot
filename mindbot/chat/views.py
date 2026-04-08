@@ -238,7 +238,7 @@ Avoid:
     if not output:
         return JsonResponse({"reply": "No response from server."})
 
-        if "error" in output:
+    if "error" in output:
         return JsonResponse({"reply": str(output["error"])})
 
     if "choices" not in output:
