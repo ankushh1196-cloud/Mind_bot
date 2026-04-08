@@ -26,25 +26,57 @@ def home(request):
 def is_mood_related(text):
     text = text.lower()
     keywords = [
-        "sad", "happy", "angry", "stress", "anxious",
-        "feeling", "emotion", "tired", "lonely",
-        "depressed", "upset", "hurt", "confused",
-        "frustrated", "overthinking", "fear", "worry"
+        "sad","happy","angry","stress","anxious",
+        "tired","lonely","empty","numb",
+        "overthinking","fear","worry",
+        "confused","lost","pressure",
+        "no energy","burnt out","hopeless"
     ]
     return any(word in text for word in keywords)
 
 
 def detect_emotion(text):
     text = text.lower()
-
-    if any(w in text for w in ["angry", "hate", "frustrated"]):
+    if any(w in text for w in [
+"angry", "mad", "irritated", "frustrated",
+"annoyed", "pissed", "hate this",
+"fed up", "done with this",
+"why is this happening",
+"this is unfair", "so annoying"
+]):
         return "angry"
-    if any(w in text for w in ["sad", "depressed", "lonely", "hurt"]):
+    if any(w in text for w in ["sad", "down", "low", "depressed", "unhappy",
+"lonely", "alone", "empty", "numb",
+"tired of everything", "no energy", "exhausted",
+"nothing feels good", "lost interest",
+"i feel like crying", "want to cry",
+"hopeless", "worthless", "no purpose",
+"feel useless", "not good enough"]):
         return "sad"
-    if any(w in text for w in ["anxious", "worried", "stress"]):
+    if any(w in text for w in [
+"anxious", "worried", "stress", "stressed",
+"overthinking", "panic", "nervous",
+"can't relax", "mind racing",
+"what if", "scared about future",
+"fear", "pressure", "too much in my head",
+"can't stop thinking"
+]):
         return "anxious"
-    if any(w in text for w in ["confused", "lost", "dont know"]):
+    if any(w in text for w in [
+"confused", "lost", "dont know", "don't know",
+"no idea", "what to do",
+"stuck", "directionless",
+"nothing makes sense",
+"i feel blank", "i am clueless"
+]):
         return "confused"
+    if any(w in text for w in [
+"happy", "good", "fine", "great",
+"feeling better", "okay now",
+"doing well", "peaceful",
+"relaxed", "content"
+]):
+        return "happy"
     return "neutral"
 
 def query(messages):
@@ -149,87 +181,64 @@ def chatbot(request):
     if stage == "start":
 
         system_prompt = f"""
-You are NOT a general chatbot.
-
-You ONLY talk about emotions, feelings, and inner thoughts.
-
-If user tries to talk about random topics:
-→ Redirect them back to their feelings politely.
+You are a calm, emotionally intelligent AI.
 
 User emotion: {emotion}
 
-TASK:
-Ask ONE meaningful question to understand WHY they feel this way.
+Goal:
+Understand the user deeply.
 
-RULES:
-- Only 1 question
-- No advice
-- No motivation
-- No long text
-- Very natural tone
+Rules:
+- Talk naturally like a human
+- Ask 1 meaningful question
+- No robotic tone
+- No forced structure
+- Keep it short but thoughtful
 
 Example:
-"What’s been bothering you lately?"
+"What’s been on your mind lately?"
 """
 
         stage = "reason"
 
     # ---------------- STAGE 2 ----------------
     elif stage == "reason":
-
         system_prompt = f"""
-You are a deep emotional support AI.
+You are a supportive and thoughtful AI.
 
 User emotion: {emotion}
 
-User has shared their situation.
+User has shared something.
 
-RESPONSE STRUCTURE (STRICT):
+Goal:
+Make them feel understood.
 
-1. Acknowledge feeling (1 short line)
-2. Give 2 lines of simple motivation
-3. Give 1 simple philosophical insight
-4. Ask 1 deep thinking question
+Rules:
+- Start by understanding their feeling
+- Respond like a real human, not a template
+- Give a small insight if it fits
+- Ask 1 natural follow-up question
+- No fixed structure
+- No generic lines
 
-RULES:
-- Simple English
-- No complex words
-- No long paragraphs
-- No generic lines like "stay strong"
-- Make user THINK
-
-Example:
-
-"You feel left out, and that hurts.
-
-But this doesn’t define your worth.
-Things change when you take small steps.
-
-Sometimes we compare our inside with others’ outside.
-
-Will this matter after some time?"
+Talk like a real person who actually cares.
 """
-
         stage = "advice"
 
     # ---------------- STAGE 3 ----------------
     else:
-
         system_prompt = f"""
-You are an emotional AI.
+You are a calm and grounded AI.
 
 User emotion: {emotion}
 
-RULES:
-- Stay focused on feelings only
-- If user goes off-topic → bring back to emotions
-- Give insight + calm thinking
-- Ask max 1 question (optional)
-- Keep it short and real
-
-Avoid:
-- robotic tone
-- generic advice
+Rules:
+- Keep responses natural and real
+- Give insight only if useful
+- Don’t sound like a motivational speaker
+- Don’t repeat yourself
+- Keep it short
+- Ask a question only if it feels natural
 """
 
     messages = [{"role": "system", "content": system_prompt}] + conversation
