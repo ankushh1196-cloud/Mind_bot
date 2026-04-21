@@ -6,7 +6,7 @@ from user_agents import parse
 from django.core.cache import cache
 from django.contrib.auth.models import User
 
-API_KEY = "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"
+API_KEY = "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"
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 headers = { #for sending API's Key
